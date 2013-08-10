@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>uritemplate by sigmavirus24</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">uritemplate</h1>
+        <p class="header">RFC 6570 parsing for Humans</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/sigmavirus24/uritemplate/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/sigmavirus24/uritemplate/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/sigmavirus24/uritemplate">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/sigmavirus24">sigmavirus24</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a name="uritemplate" class="anchor" href="#uritemplate"><span class="octicon octicon-link"></span></a>uritemplate</h1>
+
+<p><a href="http://uritemplate.rtfd.org/">Documentation</a> -- <a href="https://github.com/sigmavirus24/uritemplate">GitHub</a> -- <a href="https://bitbucket.org/icordasc/uritemplate">BitBucket</a> -- <a href="https://travis-ci.org/sigmavirus24/uritemplate">Travis-CI</a></p>
+
+<p>Simple python library to deal with <code>URI Templates</code>_. The API looks like</p>
+
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">uritemplate</span> <span class="kn">import</span> <span class="n">URITemplate</span><span class="p">,</span> <span class="n">expand</span>
+
+<span class="n">gist_uri</span> <span class="o">=</span> <span class="s">'https://api.github.com/users/sigmavirus24/gists{/gist_id}'</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">URITemplate</span><span class="p">(</span><span class="n">gist_uri</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">gist_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">))</span>
+<span class="c"># =&gt; https://api.github.com/users/sigmavirus24/gists/123456</span>
+
+<span class="c"># or</span>
+<span class="k">print</span><span class="p">(</span><span class="n">expand</span><span class="p">(</span><span class="n">gist_uri</span><span class="p">,</span> <span class="n">gist_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">))</span>
+
+<span class="c"># also</span>
+<span class="n">t</span><span class="o">.</span><span class="n">expand</span><span class="p">({</span><span class="s">'gist_id'</span><span class="p">:</span> <span class="mi">123456</span><span class="p">})</span>
+<span class="k">print</span><span class="p">(</span><span class="n">expand</span><span class="p">(</span><span class="n">gist_uri</span><span class="p">,</span> <span class="p">{</span><span class="s">'gist_id'</span><span class="p">:</span> <span class="mi">123456</span><span class="p">}))</span>
+</pre></div>
+
+<p>Where it might be useful to have a class</p>
+
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="k">class</span> <span class="nc">GitHubUser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">URITemplate</span><span class="p">(</span><span class="s">'https://api.github.com/user{/login}'</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">login</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</pre></div>
+
+<p>When the module containing this class is loaded, <code>GitHubUser.url</code> is 
+evaluated and so the template is created once. It's often hard to notice in 
+Python, but object creation can consume a great deal of time and so can the 
+<code>re</code> module which uritemplate relies on. Constructing the object once should 
+reduce the amount of time your code takes to run.</p>
+
+<h2>
+<a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
+
+<pre><code>pip install uritemplate.py
+</code></pre>
+
+<h1>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h1>
+
+<p><a href="https://github.com/sigmavirus24/uritemplate/blob/master/LICENSE">Modified BSD license</a></p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
