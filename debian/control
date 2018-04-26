@@ -11,10 +11,12 @@ Homepage: http://uritemplatepy.readthedocs.org/
 Package: python-uritemplate
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}
+Conflicts: python-uritemplate.py
 Description: Simple python library to deal with URI Templates.
  Simple python library to deal with URI Templates.
 
 Package: python3-uritemplate
+Conflicts: python3-uritemplate.py
 Architecture: all
 Depends: ${misc:Depends}, ${python3:Depends}
 Description: Simple python library to deal with URI Templates.

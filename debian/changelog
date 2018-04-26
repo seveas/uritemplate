@@ -1,3 +1,9 @@
+uritemplate (3.0.0-3) bionic; urgency=medium
+
+  * Add a Conflicts on the old package
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Thu, 26 Apr 2018 16:15:27 +0200
+
 uritemplate (3.0.0-2) bionic; urgency=medium
 
   * Package now requires setuptools
